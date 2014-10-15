@@ -77,13 +77,19 @@ class ApplicationController < ActionController::Base
   end
 
   def set_locale
-    if user_signed_in?
-      I18n.locale = current_user.language
-    else
-      locale = http_accept_language.language_region_compatible_from AVAILABLE_LANGUAGE_CODES
-      locale ||= DEFAULT_LANGUAGE
-      I18n.locale = locale
-    end
+    I18n.locale = valid_locale_from_url || valid_locale_from_db || valid_locale_from_browser || DEFAULT_LANGUAGE
+  end
+
+  def valid_locale_from_url
+    params[:l] if params[:l].present? && AVAILABLE_LANGUAGE_CODES.include?(params[:l])
+  end
+
+  def valid_locale_from_db
+    current_user.language if user_signed_in? && current_user.language.present?
+  end
+
+  def valid_locale_from_browser
+    http_accept_language.language_region_compatible_from AVAILABLE_LANGUAGE_CODES
   end
 
   def redirect_unless_admin
