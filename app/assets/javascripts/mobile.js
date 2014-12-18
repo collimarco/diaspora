@@ -12,6 +12,10 @@
 //= require fileuploader-custom
 //= require rails-timeago
 
+//= require diaspora
+//= require helpers/i18n
+//= require widgets/timeago
+
 $(document).ready(function(){
 
   $('.shield a').click(function(){

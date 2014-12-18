@@ -114,3 +114,9 @@
     = jquery_include_tag
     = javascript_include_tag :mobile
     = include_chartbeat
+
+    :javascript
+      console.log("before Diaspora.I18n.load(): " + Diaspora.I18n.t("timeago.minutes"));
+    = load_javascript_locales
+    :javascript
+      console.log("after Diaspora.I18n.load(): " + Diaspora.I18n.t("timeago.minutes"));
