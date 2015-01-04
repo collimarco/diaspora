@@ -50,6 +50,11 @@ describe Diaspora::MessageRenderer do
       expect(message(entities).html).to eq entities
     end
 
+    it 'removes square brackets around a link that mark the preferred preview' do
+      text = 'An [http://example.com] link and [other text in brackets].'
+      expect(ActionView::Base.full_sanitizer.sanitize(message(text).html)).to eq('An http://example.com link and [other text in brackets].')
+    end
+
     context 'with mentions' do
       it 'makes hovercard links for mentioned people' do
         expect(
