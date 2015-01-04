@@ -130,6 +130,17 @@ describe("app.views.Publisher", function() {
       })
     });
 
+    describe("#createPostPreview", function () {
+      it("removes preview marks", function () {
+        var text = "An [http://example.com] link and [some text in brackets].",
+          expectedText = "An http://example.com link and [some text in brackets].",
+          e = $.Event("click", {target: this.view.$(".post_preview_button")[0]});
+        this.view.$("#status_message_text").val(text);
+        spyOn(this.view, "handleTextchange").and.callFake(function () {});
+        expect(this.view.createPostPreview(e).text).toBe(expectedText);
+      });
+    });
+
     describe('#setText', function() {
       it('sets the content text', function() {
         this.view.setText('FOO bar');

@@ -257,6 +257,24 @@ app.views.Publisher = Backbone.View.extend({
 
     var serializedForm = $(evt.target).closest("form").serializeObject();
 
+    text = serializedForm["status_message[text]"];
+
+    // remove square brackets around urls
+    // because are there only to mark the preferred link to preview
+    var deleteCharsAt = [];
+    var textWithoutPreviewMarks = "";
+    while (match = Diaspora.url_regex.exec(text)) {
+      prev = match.index + match[1].length - 1;
+      next = match.index + match[1].length + match[2].length - 1;
+      if (prev >= 0 && text.charAt(prev) == '[' && next < text.length && text.charAt(next) == ']')
+        deleteCharsAt.push(prev, next);
+    }
+    for (var i = 0; i < text.length; i++) {
+      if (deleteCharsAt.indexOf(i) === -1) 
+        textWithoutPreviewMarks += text[i];
+    }
+    text = textWithoutPreviewMarks;
+
     var photos = new Array();
     $('li.publisher_photo img').each(function(){
       var file = $(this).attr('src').substring("/uploads/images/".length);
@@ -273,7 +291,7 @@ app.views.Publisher = Backbone.View.extend({
 
     var mentioned_people = new Array();
     var regexp = new RegExp("@{\(\[\^\;\]\+\); \(\[\^\}\]\+\)}", "g");
-    while(user=regexp.exec(serializedForm["status_message[text]"])){
+    while(user=regexp.exec(text)){
       // user[1]: name, user[2]: handle
       var mentioned_user = Mentions.contacts.filter(function(item) { return item.handle == user[2];})[0];
       if(mentioned_user){
@@ -307,7 +325,7 @@ app.views.Publisher = Backbone.View.extend({
 
     var previewMessage = {
       "id" : 0,
-      "text" : serializedForm["status_message[text]"],
+      "text" : text,
       "public" : serializedForm["aspect_ids[]"]=="public",
       "created_at" : date,
       "interacted_at" : date,
@@ -316,7 +334,7 @@ app.views.Publisher = Backbone.View.extend({
       "mentioned_people" : mentioned_people,
       "photos" : photos,
       "frame_name" : "status",
-      "title" : serializedForm["status_message[text]"],
+      "title" : text,
       "address" : $("#location_address").val(),
       "interactions" : {"likes":[],"reshares":[],"comments_count":0,"likes_count":0,"reshares_count":0},
       'poll': poll,
@@ -327,6 +345,7 @@ app.views.Publisher = Backbone.View.extend({
       this.recentPreview=previewMessage;
       this.modifyPostPreview($('.stream_element:first',$('.stream_container')));
     }
+    return previewMessage; // for testing
   },
 
   modifyPostPreview : function(post) {
