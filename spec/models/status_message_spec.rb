@@ -399,6 +399,21 @@ STR
         expect(sm.contains_oembed_url_in_text?).not_to be_nil
         expect(sm.oembed_url).to eq(@youtube_url)
       end
+
+      describe 'when multiple urls are present' do
+        let(:youtube_urls) { [@youtube_url, "https://www.youtube.com/watch?v=JJZ3oB-xya4", "https://www.youtube.com/watch?v=6gfvbKLL4X4"] }
+        
+        it 'returns the url in square brackets' do
+          youtube_urls.each_index do |youtube_url_key|
+            youtube_urls_with_current_in_brackets = Array.new(youtube_urls)
+            youtube_urls_with_current_in_brackets[youtube_url_key] = "[#{youtube_urls[youtube_url_key]}]"
+            message_text = 'Some videos: ' + youtube_urls_with_current_in_brackets.join(' ')
+            sm = FactoryGirl.build(:status_message, :text => message_text)
+            expect(sm.contains_oembed_url_in_text?).not_to be_nil
+            expect(sm.oembed_url).to eq(youtube_urls[youtube_url_key])
+          end
+        end
+      end
     end
   end
 
