@@ -53,6 +53,12 @@ module Diaspora
         @message = renderer.render(message).strip
       end
 
+      def strip_preview_mark
+        return unless options[:strip_preview_mark]
+        renderer = MessageRenderer.new @message
+        renderer.urls.each { |url| @message.gsub! "[#{url}]", url }
+      end
+
       def markdownify
         renderer = Diaspora::Markdownify::HTML.new options[:markdown_render_options]
         markdown = Redcarpet::Markdown.new renderer, options[:markdown_options]
@@ -100,6 +106,7 @@ module Diaspora
                 append: nil,
                 append_after_truncate: nil,
                 squish: false,
+                strip_preview_mark: true,
                 escape: true,
                 escape_tags: false,
                 markdown_options: {
@@ -164,6 +171,7 @@ module Diaspora
       process(opts) {
         make_mentions_plain_text
         strip_markdown
+        strip_preview_mark
         squish
         append_and_truncate
       }
@@ -228,7 +236,7 @@ module Diaspora
     # Extracts all the urls from the raw message and return them in the form of a string
     # Different URLs are seperated with a space
     def urls
-      @urls ||= Twitter::Extractor.extract_urls(plain_text_without_markdown)
+      @urls ||= Twitter::Extractor.extract_urls(plain_text_without_markdown strip_preview_mark: false)
     end
 
     def raw
