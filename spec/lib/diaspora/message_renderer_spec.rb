@@ -171,6 +171,11 @@ describe Diaspora::MessageRenderer do
       text = "#hashtag message"
       expect(message(text).plain_text_without_markdown).to eq text
     end
+
+    it 'removes square brackets around a link that mark the preferred preview' do
+      text = 'An [http://example.com] link and [other text in brackets].'
+      expect(message(text).plain_text_without_markdown).to eq('An http://example.com link and [other text in brackets].')
+    end
   end
 
   describe "#urls" do
