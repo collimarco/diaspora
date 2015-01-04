@@ -190,6 +190,7 @@ module Diaspora
         escape
         render_mentions
         render_tags
+        strip_preview_mark
         squish
         append_and_truncate
       }.html_safe
