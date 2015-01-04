@@ -148,8 +148,9 @@ class StatusMessage < Post
   end
 
   def contains_oembed_url_in_text?
-    urls = self.message.urls
-    self.oembed_url = urls.find{ |url| !TRUSTED_OEMBED_PROVIDERS.find(url).nil? }
+    trusted_oembed_urls = self.message.urls.find_all { |url| !TRUSTED_OEMBED_PROVIDERS.find(url).nil? }
+    url_in_square_brackets = trusted_oembed_urls.find { |url| raw_message.include? "[#{url}]" }
+    self.oembed_url = url_in_square_brackets || trusted_oembed_urls.first
   end
 
   def contains_open_graph_url_in_text?
