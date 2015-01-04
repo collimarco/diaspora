@@ -163,6 +163,11 @@ describe Diaspora::MessageRenderer do
         entities = '&amp; &szlig; &#x27; &#39; &quot;'
         expect(message(entities).markdownified).to eq "<p>#{entities}</p>\n"
       end
+
+      it 'removes square brackets around a link that mark the preferred preview' do
+        text = 'An [http://example.com] link and [other text in brackets].'
+        expect(ActionView::Base.full_sanitizer.sanitize(message(text).markdownified).strip).to eq('An http://example.com link and [other text in brackets].')
+      end
     end
   end
 

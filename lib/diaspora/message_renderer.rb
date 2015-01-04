@@ -201,6 +201,7 @@ module Diaspora
       process(opts) {
         process_newlines
         camo_urls if AppConfig.privacy.camo.proxy_markdown_images?
+        strip_preview_mark
         markdownify
         render_mentions
         render_tags
