@@ -169,9 +169,9 @@ module Diaspora
     # @param [Hash] opts Override global output options, see {#initialize}
     def plain_text_without_markdown opts={}
       process(opts) {
+        strip_preview_mark
         make_mentions_plain_text
         strip_markdown
-        strip_preview_mark
         squish
         append_and_truncate
       }
@@ -187,10 +187,10 @@ module Diaspora
     # @param [Hash] opts Override global output options, see {#initialize}
     def html opts={}
       process(opts) {
+        strip_preview_mark
         escape
         render_mentions
         render_tags
-        strip_preview_mark
         squish
         append_and_truncate
       }.html_safe
@@ -199,9 +199,9 @@ module Diaspora
     # @param [Hash] opts Override global output options, see {#initialize}
     def markdownified opts={}
       process(opts) {
+        strip_preview_mark
         process_newlines
         camo_urls if AppConfig.privacy.camo.proxy_markdown_images?
-        strip_preview_mark
         markdownify
         render_mentions
         render_tags
