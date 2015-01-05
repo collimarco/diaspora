@@ -5,6 +5,34 @@ describe Diaspora::MessageRenderer do
     Diaspora::MessageRenderer.new(text, opts)
   end
 
+  describe Diaspora::MessageRenderer::Processor do
+    describe '#strip_preview_mark' do
+      let(:process) do 
+        described_class.process(@text, { strip_preview_mark: true }) { strip_preview_mark }
+      end
+
+      it 'removes preview marks' do
+        @text = 'An [http://example.com] link and [some markdown with preview marks]([http://daringfireball.net])'
+        expect(process).to eq('An http://example.com link and [some markdown with preview marks](http://daringfireball.net)')
+      end
+
+      it 'should not remove markdown or other square brackets in text' do
+        @text = '[Some text in brackets] and [some markdown](http://daringfireball.net)'
+        expect(process).to eq(@text)
+      end
+    end
+  end
+
+  shared_examples_for 'support preview marks' do
+    let(:tested_method) { self.class.description[1..-1] }
+
+    it 'removes square brackets around a link only when they are preview marks' do
+      text = 'An [http://example.com] link and [other text in brackets]'
+      expected = 'An http://example.com link and [other text in brackets]'
+      expect(ActionView::Base.full_sanitizer.sanitize(message(text).send(tested_method)).strip).to eq(expected)
+    end
+  end
+
   describe '#title' do
     context 'when :length is passed in parameters' do
       it 'returns string of size less or equal to :length' do
@@ -50,10 +78,7 @@ describe Diaspora::MessageRenderer do
       expect(message(entities).html).to eq entities
     end
 
-    it 'removes square brackets around a link that mark the preferred preview' do
-      text = 'An [http://example.com] link and [other text in brackets].'
-      expect(ActionView::Base.full_sanitizer.sanitize(message(text).html)).to eq('An http://example.com link and [other text in brackets].')
-    end
+    include_examples 'support preview marks'
 
     context 'with mentions' do
       it 'makes hovercard links for mentioned people' do
@@ -116,6 +141,8 @@ describe Diaspora::MessageRenderer do
       ).markdownified).to include 'href="http://joindiaspora.com/"'
     end
 
+    include_examples 'support preview marks'
+
     context 'when formatting status messages' do
       it "should leave tags intact" do
         expect(
@@ -163,11 +190,6 @@ describe Diaspora::MessageRenderer do
         entities = '&amp; &szlig; &#x27; &#39; &quot;'
         expect(message(entities).markdownified).to eq "<p>#{entities}</p>\n"
       end
-
-      it 'removes square brackets around a link that mark the preferred preview' do
-        text = 'An [http://example.com] link and [other text in brackets].'
-        expect(ActionView::Base.full_sanitizer.sanitize(message(text).markdownified).strip).to eq('An http://example.com link and [other text in brackets].')
-      end
     end
   end
 
@@ -182,10 +204,7 @@ describe Diaspora::MessageRenderer do
       expect(message(text).plain_text_without_markdown).to eq text
     end
 
-    it 'removes square brackets around a link that mark the preferred preview' do
-      text = 'An [http://example.com] link and [other text in brackets].'
-      expect(message(text).plain_text_without_markdown).to eq('An http://example.com link and [other text in brackets].')
-    end
+    include_examples 'support preview marks'
   end
 
   describe "#urls" do
