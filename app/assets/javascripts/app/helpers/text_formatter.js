@@ -2,7 +2,7 @@
 
 // cache url regex globally, for direct acces when testing
 $(function() {
-  Diaspora.url_regex = /(^|\s)\b((?:(?:https?|ftp):(?:\/{1,3})|www\.)(?:[^"<>\)\s]|\(([^\s()<>]+|(\([^\s()<>]+\)))\))+)(?=\s|$)/gi;
+  Diaspora.url_regex = /(^|\s|\[)\b((?:(?:https?|ftp):(?:\/{1,3})|www\.)(?:[^"<>\)\s]|\(([^\s()<>]+|(\([^\s()<>]+\)))\))+)(?=\s|\]|$)/gi;
 });
 
 (function(){
